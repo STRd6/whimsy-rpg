@@ -21,3 +21,10 @@ engine = Engine
 engine.attachCanvasListeners(game)
 
 document.body.appendChild engine.element()
+
+document.addEventListener "keydown", (e) ->
+  e.preventDefault()
+  console.log e
+
+  if e.keyCode is 112 # F1
+    game.launchPixelEditor()
