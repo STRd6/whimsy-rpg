@@ -12,8 +12,6 @@ Game = require "./game"
 global.game = Game(ENV?.APP_STATE)
 global.appData = game.toJSON
 
-console.log 'wat'
-
 engine = Engine
   width: width
   height: height
