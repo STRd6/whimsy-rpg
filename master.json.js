@@ -19,7 +19,7 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "main.coffee": {
       "path": "main.coffee",
-      "content": "require \"cornerstone\"\nEngine = require \"./engine\"\n\n{width, height} = require \"./pixie\"\n\nstyle = document.createElement \"style\"\nstyle.innerHTML = require \"./style\"\ndocument.head.appendChild style\n\nGame = require \"./game\"\n\nglobal.game = Game(ENV?.APP_STATE)\nglobal.appData = game.toJSON\n\nconsole.log 'wat'\n\nengine = Engine\n  width: width\n  height: height\n  update: game.update\n  draw: game.draw\n\nengine.attachCanvasListeners(game)\n\ndocument.body.appendChild engine.element()\n",
+      "content": "require \"cornerstone\"\nEngine = require \"./engine\"\n\n{width, height} = require \"./pixie\"\n\nstyle = document.createElement \"style\"\nstyle.innerHTML = require \"./style\"\ndocument.head.appendChild style\n\nGame = require \"./game\"\n\nglobal.game = Game(ENV?.APP_STATE)\nglobal.appData = game.toJSON\n\nengine = Engine\n  width: width\n  height: height\n  update: game.update\n  draw: game.draw\n\nengine.attachCanvasListeners(game)\n\ndocument.body.appendChild engine.element()\n",
       "mode": "100644"
     },
     "TODO": {
@@ -34,7 +34,7 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "style.styl": {
       "path": "style.styl",
-      "content": "body\n  background-color: #000\n  margin: 0\n  overflow: hidden\n",
+      "content": "body\n  background-color: #000\n  margin: 0\n  overflow: hidden\n\nhtml, body, .engine\n  height: 100%\n\n.engine\n  position: relative\n\n  & > canvas\n    top: 0\n    bottom: 0\n    left: 0\n    right: 0\n    margin: auto\n    position: absolute\n",
       "mode": "100644"
     },
     "game.coffee": {
@@ -51,7 +51,7 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "main": {
       "path": "main",
-      "content": "(function() {\n  var Engine, Game, engine, height, style, width, _ref;\n\n  require(\"cornerstone\");\n\n  Engine = require(\"./engine\");\n\n  _ref = require(\"./pixie\"), width = _ref.width, height = _ref.height;\n\n  style = document.createElement(\"style\");\n\n  style.innerHTML = require(\"./style\");\n\n  document.head.appendChild(style);\n\n  Game = require(\"./game\");\n\n  global.game = Game(typeof ENV !== \"undefined\" && ENV !== null ? ENV.APP_STATE : void 0);\n\n  global.appData = game.toJSON;\n\n  console.log('wat');\n\n  engine = Engine({\n    width: width,\n    height: height,\n    update: game.update,\n    draw: game.draw\n  });\n\n  engine.attachCanvasListeners(game);\n\n  document.body.appendChild(engine.element());\n\n}).call(this);\n",
+      "content": "(function() {\n  var Engine, Game, engine, height, style, width, _ref;\n\n  require(\"cornerstone\");\n\n  Engine = require(\"./engine\");\n\n  _ref = require(\"./pixie\"), width = _ref.width, height = _ref.height;\n\n  style = document.createElement(\"style\");\n\n  style.innerHTML = require(\"./style\");\n\n  document.head.appendChild(style);\n\n  Game = require(\"./game\");\n\n  global.game = Game(typeof ENV !== \"undefined\" && ENV !== null ? ENV.APP_STATE : void 0);\n\n  global.appData = game.toJSON;\n\n  engine = Engine({\n    width: width,\n    height: height,\n    update: game.update,\n    draw: game.draw\n  });\n\n  engine.attachCanvasListeners(game);\n\n  document.body.appendChild(engine.element());\n\n}).call(this);\n",
       "type": "blob"
     },
     "engine": {
@@ -61,7 +61,7 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "style": {
       "path": "style",
-      "content": "module.exports = \"body {\\n  background-color: #000;\\n  margin: 0;\\n  overflow: hidden;\\n}\";",
+      "content": "module.exports = \"body {\\n  background-color: #000;\\n  margin: 0;\\n  overflow: hidden;\\n}\\n\\nhtml,\\nbody,\\n.engine {\\n  height: 100%;\\n}\\n\\n.engine {\\n  position: relative;\\n}\\n\\n.engine > canvas {\\n  top: 0;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n  position: absolute;\\n}\";",
       "type": "blob"
     },
     "game": {
