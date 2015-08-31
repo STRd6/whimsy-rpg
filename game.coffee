@@ -6,14 +6,15 @@ Spritesheet = require "./spritesheet"
 tileSize = 32
 
 module.exports = (I={}, self=Model(I)) ->
-  I.blocks ?= [{x: 4, y: 4, index: 0}]
+  defaults I,
+    activeIndex: 0
+    blocks: [{x: 4, y: 4, index: 0}]
 
   sheet = Spritesheet
     width: 512
     height: 512
     tileWidth: 32
     tileHeight: 32
-    activeIndex: 0
 
   self.attrAccessor "activeIndex"
 
@@ -42,9 +43,7 @@ module.exports = (I={}, self=Model(I)) ->
         if event.source is pixelEditor
           data = event.data
           console.log data
-          
-          # TODO: Send existing image to pixel editor
-          
+
           if data.status is "ready"
             pixelEditor.postMessage
               method: "resize"

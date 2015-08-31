@@ -30,3 +30,7 @@ document.addEventListener "keydown", (e) ->
 
   if e.keyCode is 112 # F1
     game.launchPixelEditor()
+
+  if 48 <= e.keyCode <= 57
+    num = e.keyCode - 48
+    game.activeIndex num
