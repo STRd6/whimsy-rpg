@@ -3,8 +3,10 @@ width: 1024
 height: 576
 remoteDependencies: [
   "https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"
+  "http://code.jquery.com/jquery-2.1.4.min.js"
 ]
 dependencies:
   "cornerstone": "distri/cornerstone:v0.2.10"
   "touch-canvas": "distri/touch-canvas:v0.3.1"
+  "s3-uploader": "distri/s3-uploader:v0.1.2"
   "sprite": "distri/sprite:master"

@@ -1,4 +1,7 @@
 Sprite = require "sprite"
+Data = require "./data"
+
+BASE = "http://whimsy.space/whimsy-rpg/"
 
 module.exports = (I={}) ->
   defaults I,
@@ -6,14 +9,40 @@ module.exports = (I={}) ->
     height: 512
     tileWidth: 32
     tileHeight: 32
+    name: "resources/sheet0.png"
+
+  data = Data()
 
   spriteSource = document.createElement "canvas"
   spriteSource.width = I.width
   spriteSource.height = I.height
 
+  updating = true
+  shouldUpdate = false
+  updateImage = ->
+    if updating
+      shouldUpdate = true
+      return
+
+    updating = true
+
+    spriteSource.toBlob (blob) ->
+      data.upload I.name, blob
+      .finally ->
+        updating = false
+        if shouldUpdate
+          shouldUpdate = false
+          updateImage()
+      .done()
+  
   ctx = spriteSource.getContext("2d")
-  ctx.fillStyle = "#0ff"
-  ctx.fillRect(0, 0, I.width, I.height)
+  img = new Image
+  img.crossOrigin = true
+  img.onload = ->
+    ctx.drawImage(img, 0, 0)
+    updating = false
+    shouldUpdate = false
+  img.src = "#{BASE}#{I.name}?o_0"
 
   sprites = [0..15].map (n) ->
     Sprite(spriteSource, n * I.tileWidth, 0, I.tileWidth, I.tileHeight)
@@ -27,6 +56,8 @@ module.exports = (I={}) ->
     y = 0
 
     ctx.putImageData(data, x, y)
+
+    updateImage()
 
   getImageData: (index) ->
     # TODO: 

@@ -13,6 +13,9 @@ module.exports = (I={}, self=Model(I)) ->
     height: 512
     tileWidth: 32
     tileHeight: 32
+    activeIndex: 0
+
+  self.attrAccessor "activeIndex"
 
   self.extend
     draw: (canvas) ->
@@ -27,12 +30,12 @@ module.exports = (I={}, self=Model(I)) ->
       x = Math.floor x * width / tileSize
       y = Math.floor y * height / tileSize
 
-      I.blocks.push {x: x, y: y, index: 0}
+      I.blocks.push {x: x, y: y, index: self.activeIndex()}
     move: ->
     release: ->
 
     launchPixelEditor: ->
-      index = 0
+      index = self.activeIndex()
       pixelEditor = window.open "http://www.danielx.net/pixel-editor", null, "width=800,height=600"
 
       window.addEventListener "message", (event) ->

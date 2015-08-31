@@ -1,3 +1,5 @@
+require "./lib/canvas-to-blob"
+
 require "cornerstone"
 Engine = require "./engine"
 
