@@ -1,8 +1,6 @@
 Sprite = require "sprite"
 Data = require "./data"
 
-BASE = "http://whimsy.space/whimsy-rpg/"
-
 module.exports = (I={}) ->
   defaults I,
     width: 512
@@ -36,13 +34,13 @@ module.exports = (I={}) ->
       .done()
   
   ctx = spriteSource.getContext("2d")
-  img = new Image
-  img.crossOrigin = true
-  img.onload = ->
+
+  data.getImage(I.name)
+  .then (img) ->
     ctx.drawImage(img, 0, 0)
     updating = false
     shouldUpdate = false
-  img.src = "#{BASE}#{I.name}?o_0"
+  .done()
 
   sprites = [0..15].map (n) ->
     Sprite(spriteSource, n * I.tileWidth, 0, I.tileWidth, I.tileHeight)
@@ -60,7 +58,7 @@ module.exports = (I={}) ->
     updateImage()
 
   getImageData: (index) ->
-    # TODO: 
+    # TODO: y values
     x = index * I.tileWidth
     y = 0
 
