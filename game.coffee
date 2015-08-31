@@ -42,10 +42,12 @@ module.exports = (I={}, self=Model(I)) ->
       x = Math.floor x * width / tileSize
       y = Math.floor y * height / tileSize
 
-      current = {x: x, y: y}
+      current = {x, y}
 
-      line previous, current, (x, y, index) ->
-        room.set x, y, index
+      line previous, current, (x, y) ->
+        room.set x, y, self.activeIndex()
+
+      previous = current
 
     release: ->
 
