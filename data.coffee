@@ -61,8 +61,6 @@ module.exports = (I={}) ->
     xhr.responseType = 'arraybuffer'
 
     xhr.onload = (e) ->
-      console.log "Load", e
-
       if (200 <= this.status < 300) or this.status is 304
         console.log this.response
 

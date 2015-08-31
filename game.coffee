@@ -1,14 +1,17 @@
 require "cornerstone"
+Room = require "./room"
 Spritesheet = require "./spritesheet"
 
 {width, height} = require "./pixie"
+{line} = require "./util"
 
 tileSize = 32
 
 module.exports = (I={}, self=Model(I)) ->
   defaults I,
     activeIndex: 0
-    blocks: [{x: 4, y: 4, index: 0}]
+
+  room = Room()
 
   sheet = Spritesheet
     width: 512
@@ -18,11 +21,11 @@ module.exports = (I={}, self=Model(I)) ->
 
   self.attrAccessor "activeIndex"
 
+  previous = null
+
   self.extend
     draw: (canvas) ->
-      canvas.fill("#f00")
-
-      I.blocks.forEach ({x, y, index}) ->
+      room.each (x, y, index) ->
         sheet.draw canvas, index, x * tileSize, y * tileSize
 
     update: ->
@@ -31,8 +34,19 @@ module.exports = (I={}, self=Model(I)) ->
       x = Math.floor x * width / tileSize
       y = Math.floor y * height / tileSize
 
-      I.blocks.push {x: x, y: y, index: self.activeIndex()}
-    move: ->
+      room.set x, y, self.activeIndex()
+
+      previous = {x, y}
+
+    move: ({x, y}) ->
+      x = Math.floor x * width / tileSize
+      y = Math.floor y * height / tileSize
+
+      current = {x: x, y: y}
+
+      line previous, current, (x, y, index) ->
+        room.set x, y, index
+
     release: ->
 
     launchPixelEditor: ->
@@ -70,7 +84,7 @@ module.exports = (I={}, self=Model(I)) ->
 
               """, bare: true]
             , "*"
-          
+
           else if data instanceof ImageData
             sheet.set(index, data)
 
