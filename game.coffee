@@ -23,10 +23,28 @@ module.exports = (I={}, self=Model(I)) ->
 
   previous = null
 
+  drawWords = (canvas, x, y, words) ->
+    canvas.drawText
+      x: x
+      y: y
+      text: words
+      color: "black"
+      font: "bold 20px monospace"
+    
+    canvas.drawText
+      x: x - 1
+      y: y - 1
+      text: words
+      color: "white"
+
   self.extend
     draw: (canvas) ->
+      canvas.fill "black"
+
       room.each (x, y, index) ->
         sheet.draw canvas, index, x * tileSize, y * tileSize
+
+      drawWords canvas, 10, 24, "Index: #{self.activeIndex()}"
 
     save: ->
       sheet.save()
