@@ -9,7 +9,8 @@ tileSize = 32
 
 module.exports = (I={}, self=Model(I)) ->
   defaults I,
-    activeIndex: 0
+    tileCol: 0
+    tileRow: 0
 
   room = Room()
 
@@ -19,7 +20,7 @@ module.exports = (I={}, self=Model(I)) ->
     tileWidth: 32
     tileHeight: 32
 
-  self.attrAccessor "activeIndex"
+  self.attrAccessor "tileCol", "tileRow"
 
   previous = null
 
@@ -30,7 +31,7 @@ module.exports = (I={}, self=Model(I)) ->
       text: words
       color: "black"
       font: "bold 20px monospace"
-    
+
     canvas.drawText
       x: x - 1
       y: y - 1
@@ -38,6 +39,9 @@ module.exports = (I={}, self=Model(I)) ->
       color: "white"
 
   self.extend
+    activeIndex: ->
+      self.tileCol() + self.tileRow() * 16
+
     draw: (canvas) ->
       canvas.fill "black"
 

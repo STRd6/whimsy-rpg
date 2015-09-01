@@ -1,4 +1,5 @@
 require "./lib/canvas-to-blob"
+require "./lib/keyboard"
 
 require "cornerstone"
 Engine = require "./engine"
@@ -28,15 +29,30 @@ document.addEventListener "keydown", (e) ->
   e.preventDefault()
   console.log e
 
-  if e.keyCode is 112 # F1
-    game.launchPixelEditor()
+  if e.ctrlKey
+    switch e.code
+      when "KeyS"
+        game.save()
+  else
+    switch e.code 
+      when "F1"
+        game.launchPixelEditor()
+      when "KeyA"
+        game.tileCol 10 
+      when "KeyB"
+        game.tileCol 11
+      when "KeyC"
+        game.tileCol 12
+      when "KeyD"
+        game.tileCol 13
+      when "KeyE"
+        game.tileCol 14
+      when "KeyF"
+        game.tileCol 15
 
   if 48 <= e.keyCode <= 57
     num = e.keyCode - 48
-    game.activeIndex num
-
-  if e.keyCode is 83 # s
-    game.save()
+    game.tileCol num
 
 #data = require("./data")()
 #data.getBuffer("testy.txt")
