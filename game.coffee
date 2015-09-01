@@ -59,8 +59,11 @@ module.exports = (I={}, self=Model(I)) ->
     touch: ({x, y}) ->
       x = Math.floor x * width / tileSize
       y = Math.floor y * height / tileSize
+      index = self.activeIndex()
+      
+      console.log index
 
-      room.set x, y, self.activeIndex()
+      room.set x, y, index
 
       previous = {x, y}
 

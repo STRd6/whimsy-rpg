@@ -26,6 +26,8 @@ engine.attachCanvasListeners(game)
 document.body.appendChild engine.element()
 
 document.addEventListener "keydown", (e) ->
+  return if e.code is "F12" # Don't eat debugger
+
   e.preventDefault()
   console.log e
 
@@ -52,10 +54,7 @@ document.addEventListener "keydown", (e) ->
 
   if 48 <= e.keyCode <= 57
     num = e.keyCode - 48
-    game.tileCol num
-
-#data = require("./data")()
-#data.getBuffer("testy.txt")
-#.then (r) ->
-  #console.log r, r.byteLength
-#.done()
+    if e.shiftKey
+      game.tileRow num
+    else
+      game.tileCol num

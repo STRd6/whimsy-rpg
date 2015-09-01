@@ -1,4 +1,3 @@
-Sprite = require "sprite"
 Data = require "./data"
 
 module.exports = (I={}) ->
@@ -22,30 +21,30 @@ module.exports = (I={}) ->
     ctx.drawImage(img, 0, 0)
   .done()
 
-  sprites = [0..15].map (n) ->
-    Sprite(spriteSource, n * I.tileWidth, 0, I.tileWidth, I.tileHeight)
+  self =
+    save: ->
+      spriteSource.toBlob (blob) ->
+        data.upload I.name, blob
+        .done()
+  
+    draw: (canvas, index, x, y) ->
+      {x:sx, y:sy} = self.tilePosition(index)
 
-  save: ->
-    spriteSource.toBlob (blob) ->
-      data.upload I.name, blob
-      .done()
+      canvas.drawImage spriteSource, sx, sy, I.tileWidth, I.tileHeight, x, y, I.tileWidth, I.tileHeight
 
-  draw: (canvas, index, x, y) ->
-    sprites[index]?.draw canvas, x, y
-
-  drawSource: (canvas, x, y) ->
-    canvas.drawImage spriteSource, x, y
-
-  set: (index, data) ->
-    # TODO: Find the right place
-    x = index * I.tileWidth
-    y = 0
-
-    ctx.putImageData(data, x, y)
-
-  getImageData: (index) ->
-    # TODO: y values
-    x = index * I.tileWidth
-    y = 0
-
-    ctx.getImageData(x, y, I.tileWidth, I.tileHeight)
+    drawSource: (canvas, x, y) ->
+      canvas.drawImage spriteSource, x, y
+  
+    tilePosition: (index) ->
+      x: index % 16 * I.tileWidth
+      y: Math.floor(index / 16) * I.tileHeight
+  
+    set: (index, data) ->
+      {x, y} = self.tilePosition(index)
+  
+      ctx.putImageData(data, x, y)
+  
+    getImageData: (index) ->
+      {x, y} = self.tilePosition(index)
+  
+      ctx.getImageData(x, y, I.tileWidth, I.tileHeight)
