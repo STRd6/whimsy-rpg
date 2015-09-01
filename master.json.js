@@ -32,7 +32,7 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "game.coffee": {
       "path": "game.coffee",
-      "content": "require \"cornerstone\"\nRoom = require \"./room\"\nSpritesheet = require \"./spritesheet\"\n\n{width, height} = require \"./pixie\"\n{line} = require \"./util\"\n\ntileSize = 32\n\nmodule.exports = (I={}, self=Model(I)) ->\n  defaults I,\n    tileCol: 0\n    tileRow: 0\n\n  room = Room()\n\n  sheet = Spritesheet\n    width: 512\n    height: 512\n    tileWidth: 32\n    tileHeight: 32\n\n  self.attrAccessor \"tileCol\", \"tileRow\"\n\n  previous = null\n\n  drawWords = (canvas, x, y, words) ->\n    canvas.drawText\n      x: x\n      y: y\n      text: words\n      color: \"black\"\n      font: \"bold 20px monospace\"\n\n    canvas.drawText\n      x: x - 1\n      y: y - 1\n      text: words\n      color: \"white\"\n\n  self.extend\n    activeIndex: ->\n      self.tileCol() + self.tileRow() * 16\n\n    draw: (canvas) ->\n      canvas.fill \"black\"\n\n      room.each (x, y, index) ->\n        sheet.draw canvas, index, x * tileSize, y * tileSize\n\n      drawWords canvas, 10, 24, \"Index: #{self.activeIndex()}\"\n\n    save: ->\n      sheet.save()\n      room.save()\n\n    update: ->\n\n    touch: ({x, y}) ->\n      x = Math.floor x * width / tileSize\n      y = Math.floor y * height / tileSize\n\n      room.set x, y, self.activeIndex()\n\n      previous = {x, y}\n\n    move: ({x, y}) ->\n      x = Math.floor x * width / tileSize\n      y = Math.floor y * height / tileSize\n\n      current = {x, y}\n\n      line previous, current, (x, y) ->\n        room.set x, y, self.activeIndex()\n\n      previous = current\n\n    release: ->\n\n    launchPixelEditor: ->\n      index = self.activeIndex()\n      pixelEditor = window.open \"http://www.danielx.net/pixel-editor\", null, \"width=800,height=600\"\n\n      window.addEventListener \"message\", (event) ->\n        if event.source is pixelEditor\n          data = event.data\n          console.log data\n\n          if data.status is \"ready\"\n            pixelEditor.postMessage\n              method: \"resize\"\n              params: [{\n                width: 32\n                height: 32\n              },\n                sheet.getImageData(index)\n              ]\n            , \"*\"\n\n            pixelEditor.postMessage\n              method: \"eval\"\n              params: [CoffeeScript.compile \"\"\"\n                self.actions.pop() # Remove old save\n\n                self.resize\n                  width: 32\n                  height: 32\n\n                self.on \"change\", ->\n                  self.sendToParent self.canvas.context().getImageData(0, 0, 32, 32)\n                  self.markClean()\n\n              \"\"\", bare: true]\n            , \"*\"\n\n          else if data instanceof ImageData\n            sheet.set(index, data)\n\n  return self\n",
+      "content": "require \"cornerstone\"\nRoom = require \"./room\"\nSpritesheet = require \"./spritesheet\"\n\n{width, height} = require \"./pixie\"\n{line} = require \"./util\"\n\ntileSize = 32\n\nmodule.exports = (I={}, self=Model(I)) ->\n  defaults I,\n    tileCol: 0\n    tileRow: 0\n\n  room = Room()\n\n  sheet = Spritesheet\n    width: 512\n    height: 512\n    tileWidth: 32\n    tileHeight: 32\n\n  self.attrAccessor \"tileCol\", \"tileRow\"\n\n  previous = null\n\n  drawWords = (canvas, x, y, words) ->\n    canvas.drawText\n      x: x\n      y: y\n      text: words\n      color: \"black\"\n      font: \"bold 20px monospace\"\n\n    canvas.drawText\n      x: x - 1\n      y: y - 1\n      text: words\n      color: \"white\"\n\n  self.extend\n    activeIndex: ->\n      self.tileCol() + self.tileRow() * 16\n\n    draw: (canvas) ->\n      canvas.fill \"black\"\n\n      room.each (x, y, index) ->\n        sheet.draw canvas, index, x * tileSize, y * tileSize\n\n      drawWords canvas, 10, 24, \"Index: #{self.activeIndex()}\"\n\n    save: ->\n      sheet.save()\n      room.save()\n\n    update: ->\n\n    touch: ({x, y}) ->\n      x = Math.floor x * width / tileSize\n      y = Math.floor y * height / tileSize\n      index = self.activeIndex()\n      \n      console.log index\n\n      room.set x, y, index\n\n      previous = {x, y}\n\n    move: ({x, y}) ->\n      x = Math.floor x * width / tileSize\n      y = Math.floor y * height / tileSize\n\n      current = {x, y}\n\n      line previous, current, (x, y) ->\n        room.set x, y, self.activeIndex()\n\n      previous = current\n\n    release: ->\n\n    launchPixelEditor: ->\n      index = self.activeIndex()\n      pixelEditor = window.open \"http://www.danielx.net/pixel-editor\", null, \"width=800,height=600\"\n\n      window.addEventListener \"message\", (event) ->\n        if event.source is pixelEditor\n          data = event.data\n          console.log data\n\n          if data.status is \"ready\"\n            pixelEditor.postMessage\n              method: \"resize\"\n              params: [{\n                width: 32\n                height: 32\n              },\n                sheet.getImageData(index)\n              ]\n            , \"*\"\n\n            pixelEditor.postMessage\n              method: \"eval\"\n              params: [CoffeeScript.compile \"\"\"\n                self.actions.pop() # Remove old save\n\n                self.resize\n                  width: 32\n                  height: 32\n\n                self.on \"change\", ->\n                  self.sendToParent self.canvas.context().getImageData(0, 0, 32, 32)\n                  self.markClean()\n\n              \"\"\", bare: true]\n            , \"*\"\n\n          else if data instanceof ImageData\n            sheet.set(index, data)\n\n  return self\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -44,13 +44,13 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "main.coffee": {
       "path": "main.coffee",
-      "content": "require \"./lib/canvas-to-blob\"\nrequire \"./lib/keyboard\"\n\nrequire \"cornerstone\"\nEngine = require \"./engine\"\n\n{width, height} = require \"./pixie\"\n\nstyle = document.createElement \"style\"\nstyle.innerHTML = require \"./style\"\ndocument.head.appendChild style\n\nGame = require \"./game\"\n\nglobal.game = Game(ENV?.APP_STATE)\nglobal.appData = game.toJSON\n\nengine = Engine\n  width: width\n  height: height\n  update: game.update\n  draw: game.draw\n\nengine.attachCanvasListeners(game)\n\ndocument.body.appendChild engine.element()\n\ndocument.addEventListener \"keydown\", (e) ->\n  e.preventDefault()\n  console.log e\n\n  if e.ctrlKey\n    switch e.code\n      when \"KeyS\"\n        game.save()\n  else\n    switch e.code \n      when \"F1\"\n        game.launchPixelEditor()\n      when \"KeyA\"\n        game.tileCol 10 \n      when \"KeyB\"\n        game.tileCol 11\n      when \"KeyC\"\n        game.tileCol 12\n      when \"KeyD\"\n        game.tileCol 13\n      when \"KeyE\"\n        game.tileCol 14\n      when \"KeyF\"\n        game.tileCol 15\n\n  if 48 <= e.keyCode <= 57\n    num = e.keyCode - 48\n    game.tileCol num\n\n#data = require(\"./data\")()\n#data.getBuffer(\"testy.txt\")\n#.then (r) ->\n  #console.log r, r.byteLength\n#.done()\n",
+      "content": "require \"./lib/canvas-to-blob\"\nrequire \"./lib/keyboard\"\n\nrequire \"cornerstone\"\nEngine = require \"./engine\"\n\n{width, height} = require \"./pixie\"\n\nstyle = document.createElement \"style\"\nstyle.innerHTML = require \"./style\"\ndocument.head.appendChild style\n\nGame = require \"./game\"\n\nglobal.game = Game(ENV?.APP_STATE)\nglobal.appData = game.toJSON\n\nengine = Engine\n  width: width\n  height: height\n  update: game.update\n  draw: game.draw\n\nengine.attachCanvasListeners(game)\n\ndocument.body.appendChild engine.element()\n\ndocument.addEventListener \"keydown\", (e) ->\n  return if e.code is \"F12\" # Don't eat debugger\n\n  e.preventDefault()\n  console.log e\n\n  if e.ctrlKey\n    switch e.code\n      when \"KeyS\"\n        game.save()\n  else\n    switch e.code \n      when \"F1\"\n        game.launchPixelEditor()\n      when \"KeyA\"\n        game.tileCol 10 \n      when \"KeyB\"\n        game.tileCol 11\n      when \"KeyC\"\n        game.tileCol 12\n      when \"KeyD\"\n        game.tileCol 13\n      when \"KeyE\"\n        game.tileCol 14\n      when \"KeyF\"\n        game.tileCol 15\n\n  if 48 <= e.keyCode <= 57\n    num = e.keyCode - 48\n    if e.shiftKey\n      game.tileRow num\n    else\n      game.tileCol num\n",
       "mode": "100644",
       "type": "blob"
     },
     "pixie.cson": {
       "path": "pixie.cson",
-      "content": "version: \"0.0.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js\"\n  \"http://code.jquery.com/jquery-2.1.4.min.js\"\n]\ndependencies:\n  \"cornerstone\": \"distri/cornerstone:v0.2.10\"\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n  \"s3-uploader\": \"distri/s3-uploader:v0.1.3\"\n  \"sprite\": \"distri/sprite:master\"\n",
+      "content": "version: \"0.0.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js\"\n  \"http://code.jquery.com/jquery-2.1.4.min.js\"\n]\ndependencies:\n  \"cornerstone\": \"distri/cornerstone:v0.2.10\"\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n  \"s3-uploader\": \"distri/s3-uploader:v0.1.3\"\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -62,7 +62,7 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "spritesheet.coffee": {
       "path": "spritesheet.coffee",
-      "content": "Sprite = require \"sprite\"\nData = require \"./data\"\n\nmodule.exports = (I={}) ->\n  defaults I,\n    width: 512\n    height: 512\n    tileWidth: 32\n    tileHeight: 32\n    name: \"resources/sheet0.png\"\n\n  data = Data()\n\n  spriteSource = document.createElement \"canvas\"\n  spriteSource.width = I.width\n  spriteSource.height = I.height\n\n  ctx = spriteSource.getContext(\"2d\")\n\n  data.getImage(I.name)\n  .then (img) ->\n    ctx.drawImage(img, 0, 0)\n  .done()\n\n  sprites = [0..15].map (n) ->\n    Sprite(spriteSource, n * I.tileWidth, 0, I.tileWidth, I.tileHeight)\n\n  save: ->\n    spriteSource.toBlob (blob) ->\n      data.upload I.name, blob\n      .done()\n\n  draw: (canvas, index, x, y) ->\n    sprites[index]?.draw canvas, x, y\n\n  drawSource: (canvas, x, y) ->\n    canvas.drawImage spriteSource, x, y\n\n  set: (index, data) ->\n    # TODO: Find the right place\n    x = index * I.tileWidth\n    y = 0\n\n    ctx.putImageData(data, x, y)\n\n  getImageData: (index) ->\n    # TODO: y values\n    x = index * I.tileWidth\n    y = 0\n\n    ctx.getImageData(x, y, I.tileWidth, I.tileHeight)\n",
+      "content": "Data = require \"./data\"\n\nmodule.exports = (I={}) ->\n  defaults I,\n    width: 512\n    height: 512\n    tileWidth: 32\n    tileHeight: 32\n    name: \"resources/sheet0.png\"\n\n  data = Data()\n\n  spriteSource = document.createElement \"canvas\"\n  spriteSource.width = I.width\n  spriteSource.height = I.height\n\n  ctx = spriteSource.getContext(\"2d\")\n\n  data.getImage(I.name)\n  .then (img) ->\n    ctx.drawImage(img, 0, 0)\n  .done()\n\n  self =\n    save: ->\n      spriteSource.toBlob (blob) ->\n        data.upload I.name, blob\n        .done()\n  \n    draw: (canvas, index, x, y) ->\n      {x:sx, y:sy} = self.tilePosition(index)\n\n      canvas.drawImage spriteSource, sx, sy, I.tileWidth, I.tileHeight, x, y, I.tileWidth, I.tileHeight\n\n    drawSource: (canvas, x, y) ->\n      canvas.drawImage spriteSource, x, y\n  \n    tilePosition: (index) ->\n      x: index % 16 * I.tileWidth\n      y: Math.floor(index / 16) * I.tileHeight\n  \n    set: (index, data) ->\n      {x, y} = self.tilePosition(index)\n  \n      ctx.putImageData(data, x, y)\n  \n    getImageData: (index) ->\n      {x, y} = self.tilePosition(index)\n  \n      ctx.getImageData(x, y, I.tileWidth, I.tileHeight)\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -97,7 +97,7 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "game": {
       "path": "game",
-      "content": "(function() {\n  var Room, Spritesheet, height, line, tileSize, width, _ref;\n\n  require(\"cornerstone\");\n\n  Room = require(\"./room\");\n\n  Spritesheet = require(\"./spritesheet\");\n\n  _ref = require(\"./pixie\"), width = _ref.width, height = _ref.height;\n\n  line = require(\"./util\").line;\n\n  tileSize = 32;\n\n  module.exports = function(I, self) {\n    var drawWords, previous, room, sheet;\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Model(I);\n    }\n    defaults(I, {\n      tileCol: 0,\n      tileRow: 0\n    });\n    room = Room();\n    sheet = Spritesheet({\n      width: 512,\n      height: 512,\n      tileWidth: 32,\n      tileHeight: 32\n    });\n    self.attrAccessor(\"tileCol\", \"tileRow\");\n    previous = null;\n    drawWords = function(canvas, x, y, words) {\n      canvas.drawText({\n        x: x,\n        y: y,\n        text: words,\n        color: \"black\",\n        font: \"bold 20px monospace\"\n      });\n      return canvas.drawText({\n        x: x - 1,\n        y: y - 1,\n        text: words,\n        color: \"white\"\n      });\n    };\n    self.extend({\n      activeIndex: function() {\n        return self.tileCol() + self.tileRow() * 16;\n      },\n      draw: function(canvas) {\n        canvas.fill(\"black\");\n        room.each(function(x, y, index) {\n          return sheet.draw(canvas, index, x * tileSize, y * tileSize);\n        });\n        return drawWords(canvas, 10, 24, \"Index: \" + (self.activeIndex()));\n      },\n      save: function() {\n        sheet.save();\n        return room.save();\n      },\n      update: function() {},\n      touch: function(_arg) {\n        var x, y;\n        x = _arg.x, y = _arg.y;\n        x = Math.floor(x * width / tileSize);\n        y = Math.floor(y * height / tileSize);\n        room.set(x, y, self.activeIndex());\n        return previous = {\n          x: x,\n          y: y\n        };\n      },\n      move: function(_arg) {\n        var current, x, y;\n        x = _arg.x, y = _arg.y;\n        x = Math.floor(x * width / tileSize);\n        y = Math.floor(y * height / tileSize);\n        current = {\n          x: x,\n          y: y\n        };\n        line(previous, current, function(x, y) {\n          return room.set(x, y, self.activeIndex());\n        });\n        return previous = current;\n      },\n      release: function() {},\n      launchPixelEditor: function() {\n        var index, pixelEditor;\n        index = self.activeIndex();\n        pixelEditor = window.open(\"http://www.danielx.net/pixel-editor\", null, \"width=800,height=600\");\n        return window.addEventListener(\"message\", function(event) {\n          var data;\n          if (event.source === pixelEditor) {\n            data = event.data;\n            console.log(data);\n            if (data.status === \"ready\") {\n              pixelEditor.postMessage({\n                method: \"resize\",\n                params: [\n                  {\n                    width: 32,\n                    height: 32\n                  }, sheet.getImageData(index)\n                ]\n              }, \"*\");\n              return pixelEditor.postMessage({\n                method: \"eval\",\n                params: [\n                  CoffeeScript.compile(\"self.actions.pop() # Remove old save\\n\\nself.resize\\n  width: 32\\n  height: 32\\n\\nself.on \\\"change\\\", ->\\n  self.sendToParent self.canvas.context().getImageData(0, 0, 32, 32)\\n  self.markClean()\\n\", {\n                    bare: true\n                  })\n                ]\n              }, \"*\");\n            } else if (data instanceof ImageData) {\n              return sheet.set(index, data);\n            }\n          }\n        });\n      }\n    });\n    return self;\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var Room, Spritesheet, height, line, tileSize, width, _ref;\n\n  require(\"cornerstone\");\n\n  Room = require(\"./room\");\n\n  Spritesheet = require(\"./spritesheet\");\n\n  _ref = require(\"./pixie\"), width = _ref.width, height = _ref.height;\n\n  line = require(\"./util\").line;\n\n  tileSize = 32;\n\n  module.exports = function(I, self) {\n    var drawWords, previous, room, sheet;\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Model(I);\n    }\n    defaults(I, {\n      tileCol: 0,\n      tileRow: 0\n    });\n    room = Room();\n    sheet = Spritesheet({\n      width: 512,\n      height: 512,\n      tileWidth: 32,\n      tileHeight: 32\n    });\n    self.attrAccessor(\"tileCol\", \"tileRow\");\n    previous = null;\n    drawWords = function(canvas, x, y, words) {\n      canvas.drawText({\n        x: x,\n        y: y,\n        text: words,\n        color: \"black\",\n        font: \"bold 20px monospace\"\n      });\n      return canvas.drawText({\n        x: x - 1,\n        y: y - 1,\n        text: words,\n        color: \"white\"\n      });\n    };\n    self.extend({\n      activeIndex: function() {\n        return self.tileCol() + self.tileRow() * 16;\n      },\n      draw: function(canvas) {\n        canvas.fill(\"black\");\n        room.each(function(x, y, index) {\n          return sheet.draw(canvas, index, x * tileSize, y * tileSize);\n        });\n        return drawWords(canvas, 10, 24, \"Index: \" + (self.activeIndex()));\n      },\n      save: function() {\n        sheet.save();\n        return room.save();\n      },\n      update: function() {},\n      touch: function(_arg) {\n        var index, x, y;\n        x = _arg.x, y = _arg.y;\n        x = Math.floor(x * width / tileSize);\n        y = Math.floor(y * height / tileSize);\n        index = self.activeIndex();\n        console.log(index);\n        room.set(x, y, index);\n        return previous = {\n          x: x,\n          y: y\n        };\n      },\n      move: function(_arg) {\n        var current, x, y;\n        x = _arg.x, y = _arg.y;\n        x = Math.floor(x * width / tileSize);\n        y = Math.floor(y * height / tileSize);\n        current = {\n          x: x,\n          y: y\n        };\n        line(previous, current, function(x, y) {\n          return room.set(x, y, self.activeIndex());\n        });\n        return previous = current;\n      },\n      release: function() {},\n      launchPixelEditor: function() {\n        var index, pixelEditor;\n        index = self.activeIndex();\n        pixelEditor = window.open(\"http://www.danielx.net/pixel-editor\", null, \"width=800,height=600\");\n        return window.addEventListener(\"message\", function(event) {\n          var data;\n          if (event.source === pixelEditor) {\n            data = event.data;\n            console.log(data);\n            if (data.status === \"ready\") {\n              pixelEditor.postMessage({\n                method: \"resize\",\n                params: [\n                  {\n                    width: 32,\n                    height: 32\n                  }, sheet.getImageData(index)\n                ]\n              }, \"*\");\n              return pixelEditor.postMessage({\n                method: \"eval\",\n                params: [\n                  CoffeeScript.compile(\"self.actions.pop() # Remove old save\\n\\nself.resize\\n  width: 32\\n  height: 32\\n\\nself.on \\\"change\\\", ->\\n  self.sendToParent self.canvas.context().getImageData(0, 0, 32, 32)\\n  self.markClean()\\n\", {\n                    bare: true\n                  })\n                ]\n              }, \"*\");\n            } else if (data instanceof ImageData) {\n              return sheet.set(index, data);\n            }\n          }\n        });\n      }\n    });\n    return self;\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "lib/canvas-to-blob": {
@@ -107,12 +107,12 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "main": {
       "path": "main",
-      "content": "(function() {\n  var Engine, Game, engine, height, style, width, _ref;\n\n  require(\"./lib/canvas-to-blob\");\n\n  require(\"./lib/keyboard\");\n\n  require(\"cornerstone\");\n\n  Engine = require(\"./engine\");\n\n  _ref = require(\"./pixie\"), width = _ref.width, height = _ref.height;\n\n  style = document.createElement(\"style\");\n\n  style.innerHTML = require(\"./style\");\n\n  document.head.appendChild(style);\n\n  Game = require(\"./game\");\n\n  global.game = Game(typeof ENV !== \"undefined\" && ENV !== null ? ENV.APP_STATE : void 0);\n\n  global.appData = game.toJSON;\n\n  engine = Engine({\n    width: width,\n    height: height,\n    update: game.update,\n    draw: game.draw\n  });\n\n  engine.attachCanvasListeners(game);\n\n  document.body.appendChild(engine.element());\n\n  document.addEventListener(\"keydown\", function(e) {\n    var num, _ref1;\n    e.preventDefault();\n    console.log(e);\n    if (e.ctrlKey) {\n      switch (e.code) {\n        case \"KeyS\":\n          game.save();\n      }\n    } else {\n      switch (e.code) {\n        case \"F1\":\n          game.launchPixelEditor();\n          break;\n        case \"KeyA\":\n          game.tileCol(10);\n          break;\n        case \"KeyB\":\n          game.tileCol(11);\n          break;\n        case \"KeyC\":\n          game.tileCol(12);\n          break;\n        case \"KeyD\":\n          game.tileCol(13);\n          break;\n        case \"KeyE\":\n          game.tileCol(14);\n          break;\n        case \"KeyF\":\n          game.tileCol(15);\n      }\n    }\n    if ((48 <= (_ref1 = e.keyCode) && _ref1 <= 57)) {\n      num = e.keyCode - 48;\n      return game.tileCol(num);\n    }\n  });\n\n}).call(this);\n",
+      "content": "(function() {\n  var Engine, Game, engine, height, style, width, _ref;\n\n  require(\"./lib/canvas-to-blob\");\n\n  require(\"./lib/keyboard\");\n\n  require(\"cornerstone\");\n\n  Engine = require(\"./engine\");\n\n  _ref = require(\"./pixie\"), width = _ref.width, height = _ref.height;\n\n  style = document.createElement(\"style\");\n\n  style.innerHTML = require(\"./style\");\n\n  document.head.appendChild(style);\n\n  Game = require(\"./game\");\n\n  global.game = Game(typeof ENV !== \"undefined\" && ENV !== null ? ENV.APP_STATE : void 0);\n\n  global.appData = game.toJSON;\n\n  engine = Engine({\n    width: width,\n    height: height,\n    update: game.update,\n    draw: game.draw\n  });\n\n  engine.attachCanvasListeners(game);\n\n  document.body.appendChild(engine.element());\n\n  document.addEventListener(\"keydown\", function(e) {\n    var num, _ref1;\n    if (e.code === \"F12\") {\n      return;\n    }\n    e.preventDefault();\n    console.log(e);\n    if (e.ctrlKey) {\n      switch (e.code) {\n        case \"KeyS\":\n          game.save();\n      }\n    } else {\n      switch (e.code) {\n        case \"F1\":\n          game.launchPixelEditor();\n          break;\n        case \"KeyA\":\n          game.tileCol(10);\n          break;\n        case \"KeyB\":\n          game.tileCol(11);\n          break;\n        case \"KeyC\":\n          game.tileCol(12);\n          break;\n        case \"KeyD\":\n          game.tileCol(13);\n          break;\n        case \"KeyE\":\n          game.tileCol(14);\n          break;\n        case \"KeyF\":\n          game.tileCol(15);\n      }\n    }\n    if ((48 <= (_ref1 = e.keyCode) && _ref1 <= 57)) {\n      num = e.keyCode - 48;\n      if (e.shiftKey) {\n        return game.tileRow(num);\n      } else {\n        return game.tileCol(num);\n      }\n    }\n  });\n\n}).call(this);\n",
       "type": "blob"
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.0.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js\",\"http://code.jquery.com/jquery-2.1.4.min.js\"],\"dependencies\":{\"cornerstone\":\"distri/cornerstone:v0.2.10\",\"touch-canvas\":\"distri/touch-canvas:v0.3.1\",\"s3-uploader\":\"distri/s3-uploader:v0.1.3\",\"sprite\":\"distri/sprite:master\"}};",
+      "content": "module.exports = {\"version\":\"0.0.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js\",\"http://code.jquery.com/jquery-2.1.4.min.js\"],\"dependencies\":{\"cornerstone\":\"distri/cornerstone:v0.2.10\",\"touch-canvas\":\"distri/touch-canvas:v0.3.1\",\"s3-uploader\":\"distri/s3-uploader:v0.1.3\"}};",
       "type": "blob"
     },
     "room": {
@@ -122,7 +122,7 @@ window["STRd6/whimsy-rpg:master"]({
     },
     "spritesheet": {
       "path": "spritesheet",
-      "content": "(function() {\n  var Data, Sprite;\n\n  Sprite = require(\"sprite\");\n\n  Data = require(\"./data\");\n\n  module.exports = function(I) {\n    var ctx, data, spriteSource, sprites;\n    if (I == null) {\n      I = {};\n    }\n    defaults(I, {\n      width: 512,\n      height: 512,\n      tileWidth: 32,\n      tileHeight: 32,\n      name: \"resources/sheet0.png\"\n    });\n    data = Data();\n    spriteSource = document.createElement(\"canvas\");\n    spriteSource.width = I.width;\n    spriteSource.height = I.height;\n    ctx = spriteSource.getContext(\"2d\");\n    data.getImage(I.name).then(function(img) {\n      return ctx.drawImage(img, 0, 0);\n    }).done();\n    sprites = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(function(n) {\n      return Sprite(spriteSource, n * I.tileWidth, 0, I.tileWidth, I.tileHeight);\n    });\n    return {\n      save: function() {\n        return spriteSource.toBlob(function(blob) {\n          return data.upload(I.name, blob).done();\n        });\n      },\n      draw: function(canvas, index, x, y) {\n        var _ref;\n        return (_ref = sprites[index]) != null ? _ref.draw(canvas, x, y) : void 0;\n      },\n      drawSource: function(canvas, x, y) {\n        return canvas.drawImage(spriteSource, x, y);\n      },\n      set: function(index, data) {\n        var x, y;\n        x = index * I.tileWidth;\n        y = 0;\n        return ctx.putImageData(data, x, y);\n      },\n      getImageData: function(index) {\n        var x, y;\n        x = index * I.tileWidth;\n        y = 0;\n        return ctx.getImageData(x, y, I.tileWidth, I.tileHeight);\n      }\n    };\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var Data;\n\n  Data = require(\"./data\");\n\n  module.exports = function(I) {\n    var ctx, data, self, spriteSource;\n    if (I == null) {\n      I = {};\n    }\n    defaults(I, {\n      width: 512,\n      height: 512,\n      tileWidth: 32,\n      tileHeight: 32,\n      name: \"resources/sheet0.png\"\n    });\n    data = Data();\n    spriteSource = document.createElement(\"canvas\");\n    spriteSource.width = I.width;\n    spriteSource.height = I.height;\n    ctx = spriteSource.getContext(\"2d\");\n    data.getImage(I.name).then(function(img) {\n      return ctx.drawImage(img, 0, 0);\n    }).done();\n    return self = {\n      save: function() {\n        return spriteSource.toBlob(function(blob) {\n          return data.upload(I.name, blob).done();\n        });\n      },\n      draw: function(canvas, index, x, y) {\n        var sx, sy, _ref;\n        _ref = self.tilePosition(index), sx = _ref.x, sy = _ref.y;\n        return canvas.drawImage(spriteSource, sx, sy, I.tileWidth, I.tileHeight, x, y, I.tileWidth, I.tileHeight);\n      },\n      drawSource: function(canvas, x, y) {\n        return canvas.drawImage(spriteSource, x, y);\n      },\n      tilePosition: function(index) {\n        return {\n          x: index % 16 * I.tileWidth,\n          y: Math.floor(index / 16) * I.tileHeight\n        };\n      },\n      set: function(index, data) {\n        var x, y, _ref;\n        _ref = self.tilePosition(index), x = _ref.x, y = _ref.y;\n        return ctx.putImageData(data, x, y);\n      },\n      getImageData: function(index) {\n        var x, y, _ref;\n        _ref = self.tilePosition(index), x = _ref.x, y = _ref.y;\n        return ctx.getImageData(x, y, I.tileWidth, I.tileHeight);\n      }\n    };\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "style": {
@@ -3425,178 +3425,6 @@ window["STRd6/whimsy-rpg:master"]({
           "dependencies": {}
         }
       }
-    },
-    "sprite": {
-      "source": {
-        "LICENSE": {
-          "path": "LICENSE",
-          "mode": "100644",
-          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 distri\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
-          "type": "blob"
-        },
-        "README.md": {
-          "path": "README.md",
-          "mode": "100644",
-          "content": "sprite\n======\n\nSprites that can be drawn on an HTML5 canvas.\n",
-          "type": "blob"
-        },
-        "main.coffee.md": {
-          "path": "main.coffee.md",
-          "mode": "100644",
-          "content": "Sprite\n======\n\nThe Sprite class provides a way to load images for use in games.\n\nA sprite is a still 2d image.\n\nAn animation can be created from a collection of sprites.\n\nBy default, images are loaded asynchronously. A proxy object is\nreturned immediately. Even though it has a draw method it will not\ndraw anything to the screen until the image has been loaded.\n\n    LoaderProxy = ->\n      draw: ->\n      fill: ->\n      width: null\n      height: null\n      image: null\n\nCache loaded images\n\n    spriteCache = {}\n\n    Sprite = (image, sourceX, sourceY, width, height) ->\n      sourceX ||= 0\n      sourceY ||= 0\n      width ||= image.width\n      height ||= image.height\n\nDraw this sprite on the given canvas at the given position.\n\n      draw: (canvas, x, y) ->\n        if x.x?\n          {x, y} = x\n\n        canvas.drawImage(\n          image,\n          sourceX,\n          sourceY,\n          width,\n          height,\n          x,\n          y,\n          width,\n          height\n        )\n\nDraw this sprite on the given canvas tiled to the x, y,\nwidth, and height dimensions specified.\n\nRepeat options can be `repeat-x`, `repeat-y`, `no-repeat`, or `repeat`. Defaults to `repeat`\n\n      fill: (canvas, x, y, width, height, repeat=\"repeat\") ->\n        pattern = canvas.createPattern(image, repeat)\n        canvas.drawRect({x, y, width, height, color: pattern})\n\n      width: width\n      height: height\n      image: image\n\nLoads all sprites from a sprite sheet found in\nyour images directory, specified by the name passed in.\n\nReturns an array of sprite objects which will start out empty, but be filled\nonce the image has loaded.\n\n    Sprite.loadSheet = (name, tileWidth, tileHeight) ->\n      url = ResourceLoader.urlFor(\"images\", name)\n\n      sprites = []\n      image = new Image()\n\n      image.onload = ->\n        imgElement = this\n        (image.height / tileHeight).times (row) ->\n          (image.width / tileWidth).times (col) ->\n            sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight))\n\n      image.src = url\n\n      return sprites\n\nLoads a sprite from a given url.\nA second optional callback parameter may be passet wich is executeh once the\nimage is loaded. The sprite proxy data is passed to it as the only parameter.\n\n    Sprite.fromURL = Sprite.load = (url, loadedCallback) ->\n      if sprite = spriteCache[url]\n        if loadedCallback?\n          defer loadedCallback, sprite\n\n        return sprite\n\n      spriteCache[url] = proxy = LoaderProxy()\n      img = new Image()\n\n      img.onload = ->\n        extend(proxy, Sprite(this))\n\n        loadedCallback?(proxy)\n\n      img.src = url\n\n      return proxy\n\nA sprite that draws nothing.\n\n    Sprite.EMPTY = Sprite.NONE = LoaderProxy()\n\n    module.exports = Sprite\n\nHelpers\n-------\n\n    extend = (target, sources...) ->\n      for source in sources\n        for name of source\n          target[name] = source[name]\n\n    defer = (fn, args...) ->\n      setTimeout ->\n        fn(args...)\n      , 1\n",
-          "type": "blob"
-        },
-        "pixie.cson": {
-          "path": "pixie.cson",
-          "mode": "100644",
-          "content": "version: \"0.3.0\"\n",
-          "type": "blob"
-        },
-        "test/sprite.coffee": {
-          "path": "test/sprite.coffee",
-          "mode": "100644",
-          "content": "Sprite = require \"../main\"\n\ndescribe \"Sprite\", ->\n  it \"should construct sprites\", ->\n    img = new Image\n\n    assert Sprite(img)\n\n  it \"should construct from data urls\", (done) ->\n    assert Sprite.load(\n      \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAACAAAAAgAIf6nJ0AAACGSURBVEjH7ZTRDYAgDEQP46wdgSEcgdncpX6IpsGUi4HGH+8POLhHSQGYFNpbXugBRImkU+cwwfcHJOpQ49LnrmGClaYS3gACL91RAMGL9CkEfV2d2OnIQII21aGY3wtScwoAMfN2XMJ6QcwtpTHuADYA+azHTRHzH4jz6rlSTK3Br18AcABNHBto+dslMQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxMS0wOC0yMFQxNDo1NjoxMi0wNzowMIGIK7sAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTEtMDgtMjBUMTQ6NTY6MTItMDc6MDDw1ZMHAAAAAElFTkSuQmCC\",\n      ->\n        done()\n    )\n",
-          "type": "blob"
-        }
-      },
-      "distribution": {
-        "main": {
-          "path": "main",
-          "content": "(function() {\n  var LoaderProxy, Sprite, defer, extend, spriteCache,\n    __slice = [].slice;\n\n  LoaderProxy = function() {\n    return {\n      draw: function() {},\n      fill: function() {},\n      width: null,\n      height: null,\n      image: null\n    };\n  };\n\n  spriteCache = {};\n\n  Sprite = function(image, sourceX, sourceY, width, height) {\n    sourceX || (sourceX = 0);\n    sourceY || (sourceY = 0);\n    width || (width = image.width);\n    height || (height = image.height);\n    return {\n      draw: function(canvas, x, y) {\n        var _ref;\n        if (x.x != null) {\n          _ref = x, x = _ref.x, y = _ref.y;\n        }\n        return canvas.drawImage(image, sourceX, sourceY, width, height, x, y, width, height);\n      },\n      fill: function(canvas, x, y, width, height, repeat) {\n        var pattern;\n        if (repeat == null) {\n          repeat = \"repeat\";\n        }\n        pattern = canvas.createPattern(image, repeat);\n        return canvas.drawRect({\n          x: x,\n          y: y,\n          width: width,\n          height: height,\n          color: pattern\n        });\n      },\n      width: width,\n      height: height,\n      image: image\n    };\n  };\n\n  Sprite.loadSheet = function(name, tileWidth, tileHeight) {\n    var image, sprites, url;\n    url = ResourceLoader.urlFor(\"images\", name);\n    sprites = [];\n    image = new Image();\n    image.onload = function() {\n      var imgElement;\n      imgElement = this;\n      return (image.height / tileHeight).times(function(row) {\n        return (image.width / tileWidth).times(function(col) {\n          return sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight));\n        });\n      });\n    };\n    image.src = url;\n    return sprites;\n  };\n\n  Sprite.fromURL = Sprite.load = function(url, loadedCallback) {\n    var img, proxy, sprite;\n    if (sprite = spriteCache[url]) {\n      if (loadedCallback != null) {\n        defer(loadedCallback, sprite);\n      }\n      return sprite;\n    }\n    spriteCache[url] = proxy = LoaderProxy();\n    img = new Image();\n    img.onload = function() {\n      extend(proxy, Sprite(this));\n      return typeof loadedCallback === \"function\" ? loadedCallback(proxy) : void 0;\n    };\n    img.src = url;\n    return proxy;\n  };\n\n  Sprite.EMPTY = Sprite.NONE = LoaderProxy();\n\n  module.exports = Sprite;\n\n  extend = function() {\n    var name, source, sources, target, _i, _len, _results;\n    target = arguments[0], sources = 2 <= arguments.length ? __slice.call(arguments, 1) : [];\n    _results = [];\n    for (_i = 0, _len = sources.length; _i < _len; _i++) {\n      source = sources[_i];\n      _results.push((function() {\n        var _results1;\n        _results1 = [];\n        for (name in source) {\n          _results1.push(target[name] = source[name]);\n        }\n        return _results1;\n      })());\n    }\n    return _results;\n  };\n\n  defer = function() {\n    var args, fn;\n    fn = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];\n    return setTimeout(function() {\n      return fn.apply(null, args);\n    }, 1);\n  };\n\n}).call(this);\n\n//# sourceURL=main.coffee",
-          "type": "blob"
-        },
-        "pixie": {
-          "path": "pixie",
-          "content": "module.exports = {\"version\":\"0.3.0\"};",
-          "type": "blob"
-        },
-        "test/sprite": {
-          "path": "test/sprite",
-          "content": "(function() {\n  var Sprite;\n\n  Sprite = require(\"../main\");\n\n  describe(\"Sprite\", function() {\n    it(\"should construct sprites\", function() {\n      var img;\n      img = new Image;\n      return assert(Sprite(img));\n    });\n    return it(\"should construct from data urls\", function(done) {\n      return assert(Sprite.load(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAACAAAAAgAIf6nJ0AAACGSURBVEjH7ZTRDYAgDEQP46wdgSEcgdncpX6IpsGUi4HGH+8POLhHSQGYFNpbXugBRImkU+cwwfcHJOpQ49LnrmGClaYS3gACL91RAMGL9CkEfV2d2OnIQII21aGY3wtScwoAMfN2XMJ6QcwtpTHuADYA+azHTRHzH4jz6rlSTK3Br18AcABNHBto+dslMQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxMS0wOC0yMFQxNDo1NjoxMi0wNzowMIGIK7sAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTEtMDgtMjBUMTQ6NTY6MTItMDc6MDDw1ZMHAAAAAElFTkSuQmCC\", function() {\n        return done();\n      }));\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/sprite.coffee",
-          "type": "blob"
-        }
-      },
-      "progenitor": {
-        "url": "http://strd6.github.io/editor/"
-      },
-      "version": "0.3.0",
-      "entryPoint": "main",
-      "repository": {
-        "id": 14668729,
-        "name": "sprite",
-        "full_name": "distri/sprite",
-        "owner": {
-          "login": "distri",
-          "id": 6005125,
-          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
-          "gravatar_id": null,
-          "url": "https://api.github.com/users/distri",
-          "html_url": "https://github.com/distri",
-          "followers_url": "https://api.github.com/users/distri/followers",
-          "following_url": "https://api.github.com/users/distri/following{/other_user}",
-          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
-          "organizations_url": "https://api.github.com/users/distri/orgs",
-          "repos_url": "https://api.github.com/users/distri/repos",
-          "events_url": "https://api.github.com/users/distri/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/distri/received_events",
-          "type": "Organization",
-          "site_admin": false
-        },
-        "private": false,
-        "html_url": "https://github.com/distri/sprite",
-        "description": "Sprites that can be drawn on an HTML5 canvas.",
-        "fork": false,
-        "url": "https://api.github.com/repos/distri/sprite",
-        "forks_url": "https://api.github.com/repos/distri/sprite/forks",
-        "keys_url": "https://api.github.com/repos/distri/sprite/keys{/key_id}",
-        "collaborators_url": "https://api.github.com/repos/distri/sprite/collaborators{/collaborator}",
-        "teams_url": "https://api.github.com/repos/distri/sprite/teams",
-        "hooks_url": "https://api.github.com/repos/distri/sprite/hooks",
-        "issue_events_url": "https://api.github.com/repos/distri/sprite/issues/events{/number}",
-        "events_url": "https://api.github.com/repos/distri/sprite/events",
-        "assignees_url": "https://api.github.com/repos/distri/sprite/assignees{/user}",
-        "branches_url": "https://api.github.com/repos/distri/sprite/branches{/branch}",
-        "tags_url": "https://api.github.com/repos/distri/sprite/tags",
-        "blobs_url": "https://api.github.com/repos/distri/sprite/git/blobs{/sha}",
-        "git_tags_url": "https://api.github.com/repos/distri/sprite/git/tags{/sha}",
-        "git_refs_url": "https://api.github.com/repos/distri/sprite/git/refs{/sha}",
-        "trees_url": "https://api.github.com/repos/distri/sprite/git/trees{/sha}",
-        "statuses_url": "https://api.github.com/repos/distri/sprite/statuses/{sha}",
-        "languages_url": "https://api.github.com/repos/distri/sprite/languages",
-        "stargazers_url": "https://api.github.com/repos/distri/sprite/stargazers",
-        "contributors_url": "https://api.github.com/repos/distri/sprite/contributors",
-        "subscribers_url": "https://api.github.com/repos/distri/sprite/subscribers",
-        "subscription_url": "https://api.github.com/repos/distri/sprite/subscription",
-        "commits_url": "https://api.github.com/repos/distri/sprite/commits{/sha}",
-        "git_commits_url": "https://api.github.com/repos/distri/sprite/git/commits{/sha}",
-        "comments_url": "https://api.github.com/repos/distri/sprite/comments{/number}",
-        "issue_comment_url": "https://api.github.com/repos/distri/sprite/issues/comments/{number}",
-        "contents_url": "https://api.github.com/repos/distri/sprite/contents/{+path}",
-        "compare_url": "https://api.github.com/repos/distri/sprite/compare/{base}...{head}",
-        "merges_url": "https://api.github.com/repos/distri/sprite/merges",
-        "archive_url": "https://api.github.com/repos/distri/sprite/{archive_format}{/ref}",
-        "downloads_url": "https://api.github.com/repos/distri/sprite/downloads",
-        "issues_url": "https://api.github.com/repos/distri/sprite/issues{/number}",
-        "pulls_url": "https://api.github.com/repos/distri/sprite/pulls{/number}",
-        "milestones_url": "https://api.github.com/repos/distri/sprite/milestones{/number}",
-        "notifications_url": "https://api.github.com/repos/distri/sprite/notifications{?since,all,participating}",
-        "labels_url": "https://api.github.com/repos/distri/sprite/labels{/name}",
-        "releases_url": "https://api.github.com/repos/distri/sprite/releases{/id}",
-        "created_at": "2013-11-24T20:34:55Z",
-        "updated_at": "2013-11-29T20:33:05Z",
-        "pushed_at": "2013-11-29T20:33:04Z",
-        "git_url": "git://github.com/distri/sprite.git",
-        "ssh_url": "git@github.com:distri/sprite.git",
-        "clone_url": "https://github.com/distri/sprite.git",
-        "svn_url": "https://github.com/distri/sprite",
-        "homepage": null,
-        "size": 136,
-        "stargazers_count": 0,
-        "watchers_count": 0,
-        "language": "CoffeeScript",
-        "has_issues": true,
-        "has_downloads": true,
-        "has_wiki": true,
-        "forks_count": 0,
-        "mirror_url": null,
-        "open_issues_count": 0,
-        "forks": 0,
-        "open_issues": 0,
-        "watchers": 0,
-        "default_branch": "master",
-        "master_branch": "master",
-        "permissions": {
-          "admin": true,
-          "push": true,
-          "pull": true
-        },
-        "organization": {
-          "login": "distri",
-          "id": 6005125,
-          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
-          "gravatar_id": null,
-          "url": "https://api.github.com/users/distri",
-          "html_url": "https://github.com/distri",
-          "followers_url": "https://api.github.com/users/distri/followers",
-          "following_url": "https://api.github.com/users/distri/following{/other_user}",
-          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
-          "organizations_url": "https://api.github.com/users/distri/orgs",
-          "repos_url": "https://api.github.com/users/distri/repos",
-          "events_url": "https://api.github.com/users/distri/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/distri/received_events",
-          "type": "Organization",
-          "site_admin": false
-        },
-        "network_count": 0,
-        "subscribers_count": 1,
-        "branch": "master",
-        "defaultBranch": "master"
-      },
-      "dependencies": {}
     }
   }
 });
