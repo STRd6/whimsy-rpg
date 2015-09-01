@@ -35,6 +35,9 @@ document.addEventListener "keydown", (e) ->
     num = e.keyCode - 48
     game.activeIndex num
 
+  if e.keyCode is 83 # s
+    game.save()
+
 #data = require("./data")()
 #data.getBuffer("testy.txt")
 #.then (r) ->

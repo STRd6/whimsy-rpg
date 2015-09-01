@@ -15,38 +15,26 @@ module.exports = (I={}) ->
   spriteSource.width = I.width
   spriteSource.height = I.height
 
-  updating = true
-  shouldUpdate = false
-  updateImage = ->
-    if updating
-      shouldUpdate = true
-      return
-
-    updating = true
-
-    spriteSource.toBlob (blob) ->
-      data.upload I.name, blob
-      .finally ->
-        updating = false
-        if shouldUpdate
-          shouldUpdate = false
-          updateImage()
-      .done()
-  
   ctx = spriteSource.getContext("2d")
 
   data.getImage(I.name)
   .then (img) ->
     ctx.drawImage(img, 0, 0)
-    updating = false
-    shouldUpdate = false
   .done()
 
   sprites = [0..15].map (n) ->
     Sprite(spriteSource, n * I.tileWidth, 0, I.tileWidth, I.tileHeight)
 
+  save: ->
+    spriteSource.toBlob (blob) ->
+      data.upload I.name, blob
+      .done()
+
   draw: (canvas, index, x, y) ->
-    sprites[index].draw canvas, x, y
+    sprites[index]?.draw canvas, x, y
+
+  drawSource: (canvas, x, y) ->
+    canvas.drawImage spriteSource, x, y
 
   set: (index, data) ->
     # TODO: Find the right place
@@ -54,8 +42,6 @@ module.exports = (I={}) ->
     y = 0
 
     ctx.putImageData(data, x, y)
-
-    updateImage()
 
   getImageData: (index) ->
     # TODO: y values

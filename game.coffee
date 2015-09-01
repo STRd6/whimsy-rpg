@@ -28,6 +28,10 @@ module.exports = (I={}, self=Model(I)) ->
       room.each (x, y, index) ->
         sheet.draw canvas, index, x * tileSize, y * tileSize
 
+    save: ->
+      sheet.save()
+      room.save()
+
     update: ->
 
     touch: ({x, y}) ->

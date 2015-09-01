@@ -33,42 +33,47 @@ module.exports = (I={}) ->
     .fail (e) ->
       throw e
 
-  upload: (path, blob) ->
-    getS3Credentials().then (policy) ->
-      S3Uploader(policy).upload
-        key: path
-        blob: blob
-        cacheControl: 0
+  self = 
+    upload: (path, blob) ->
+      getS3Credentials().then (policy) ->
+        S3Uploader(policy).upload
+          key: path
+          blob: blob
+          cacheControl: 0
 
-  getImage: (path) ->
-    deferred = Q.defer()
+    getImage: (path) ->
+      # Using getBuffer so we can get progress events and
+      # CORS shiz
 
-    img = new Image
-    img.crossOrigin = true
-    img.onload = ->
-      deferred.resolve img
-    img.onerror = (e) ->
-      deferred.reject e
-    img.src = "#{I.base}#{path}?o_0"
+      self.getBuffer(path)
+      .then (buffer) ->
+        deferred = Q.defer()
 
-    deferred.promise
+        blob = new Blob([buffer])
 
-  getBuffer: (path) ->
-    deferred = Q.defer()
+        img = new Image
+        img.src = window.URL.createObjectURL(blob)
 
-    xhr = new XMLHttpRequest()
-    xhr.open('GET', "#{I.base}#{path}", true)
-    xhr.responseType = 'arraybuffer'
+        img.onload = ->
+          deferred.resolve img
+        img.onerror = deferred.reject
 
-    xhr.onload = (e) ->
-      if (200 <= this.status < 300) or this.status is 304
-        console.log this.response
+        deferred.promise
 
-        deferred.resolve this.response
-      else
-        deferred.reject e
-
-    xhr.onerror = deferred.reject
-    xhr.send()
-
-    deferred.promise
+    getBuffer: (path) ->
+      deferred = Q.defer()
+  
+      xhr = new XMLHttpRequest()
+      xhr.open('GET', "#{I.base}#{path}", true)
+      xhr.responseType = 'arraybuffer'
+  
+      xhr.onload = (e) ->
+        if (200 <= this.status < 300) or this.status is 304
+          deferred.resolve this.response
+        else
+          deferred.reject e
+      xhr.onprogress = deferred.notify
+      xhr.onerror = deferred.reject
+      xhr.send()
+  
+      deferred.promise
