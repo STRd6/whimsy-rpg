@@ -1,6 +1,6 @@
 version: "0.0.0"
-width: 1024
-height: 576
+width: 1440
+height: 800
 remoteDependencies: [
   "https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"
   "http://code.jquery.com/jquery-2.1.4.min.js"

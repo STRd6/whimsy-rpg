@@ -16,14 +16,15 @@ global.game = Game(ENV?.APP_STATE)
 global.appData = game.toJSON
 
 engine = Engine
-  width: width
-  height: height
+  width: 1024
+  height: 576
   update: game.update
   draw: game.draw
 
 engine.attachCanvasListeners(game)
 
 document.body.appendChild engine.element()
+document.body.appendChild require("./info")()
 
 document.addEventListener "keydown", (e) ->
   return if e.code is "F12" # Don't eat debugger

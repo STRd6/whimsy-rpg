@@ -2,8 +2,9 @@ require "cornerstone"
 Room = require "./room"
 Spritesheet = require "./spritesheet"
 
-{width, height} = require "./pixie"
 {line} = require "./util"
+width = 1024
+height = 576
 
 tileSize = 32
 
@@ -60,8 +61,6 @@ module.exports = (I={}, self=Model(I)) ->
       x = Math.floor x * width / tileSize
       y = Math.floor y * height / tileSize
       index = self.activeIndex()
-      
-      console.log index
 
       room.set x, y, index
 
